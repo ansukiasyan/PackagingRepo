@@ -1,0 +1,11 @@
+FROM centos:7 as BUILDER
+
+WORKDIR /build
+COPY ./vsftpd.spec ./vsftpd.spec-patched
+ADD http://vault.centos.org/7.7.1908/os/Source/SPackages/vsftpd-3.0.2-25.el7.src.rpm vsftpd-3.0.2-25.el7.src.rpm
+RUN rpm -Uv ./vsftpd-3.0.2-25.el7.src.rpm
+
+RUN cp /root/rpmbuild/SPECS/vsftpd.spec ./ \
+    && diff -Nur vsftpd.spec vsftpd.spec-patched > patch.diff || true
+
+ENTRYPOINT ["cp", "patch.diff", "/output"]
